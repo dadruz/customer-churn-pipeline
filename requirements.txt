@@ -1,0 +1,9 @@
+pandas
+duckdb
+scikit-learn
+xgboost
+streamlit
+apache-airflow
+jupyter
+matplotlib
+joblib

@@ -1,0 +1,19 @@
+# Data (tracked dirs, ignored contents)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Environments
+venv/
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Notebooks
+.ipynb_checkpoints
+
+# macOS
+.DS_Store
