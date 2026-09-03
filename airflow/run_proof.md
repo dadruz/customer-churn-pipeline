@@ -4,6 +4,8 @@ Local end-to-end run on Apache Airflow 2.10.5 (Python 3.11, macOS).
 Triggered manually with `airflow dags trigger`; scheduler and webserver
 started by `airflow standalone`.
 
+![Successful run](dag_success.png)
+
 ```
 $ airflow dags list-runs -d churn_batch_pipeline
 dag_id               | run_id                       | state   | execution_date            | start_date                       | end_date                        
@@ -46,6 +48,8 @@ score_customers   INFO -   saved  data/processed/scored_customers.csv (204.3 KB)
 ---
 
 ## Failure path — intentional test with a corrupted copy
+
+![Failure test](dag_failure.png)
 
 > **This is a deliberate negative test, not a real incident.** It was run against
 > a throwaway **copy** of the repository in a scratch directory, whose CSV was

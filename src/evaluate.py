@@ -30,6 +30,14 @@ SCORED_PATH = ROOT / "data" / "processed" / "scored_customers.csv"
 
 REPORT_THRESHOLDS = [0.3, 0.4, 0.5, 0.6]
 
+# Customer attributes carried into the scored export. The dashboard is deployed
+# to Streamlit Cloud, which only has the repository's committed files -- it
+# cannot open data/churn.duckdb, which is gitignored as a rebuildable artifact.
+# So the export has to be self-contained rather than something the dashboard
+# joins back to the database at render time.
+EXPORT_ATTRIBUTES = ["Contract", "PaymentMethod", "InternetService",
+                     "tenure", "MonthlyCharges"]
+
 # The recommendation rule, stated up front so the choice is reproducible rather
 # than eyeballed: take the threshold that catches the most churners, subject to
 # at least half of the customers it flags being genuine churners.
@@ -115,7 +123,7 @@ def out_of_fold_probabilities(bundle, X, y):
     return pd.Series(proba, index=train_idx)
 
 
-def score_all_customers(X, y, train_proba, test_proba, threshold):
+def score_all_customers(source, X, y, train_proba, test_proba, threshold):
     """Assemble the scored export, keeping every prediction out-of-sample.
 
     Train rows carry their out-of-fold probability, so each was predicted by a
@@ -126,18 +134,23 @@ def score_all_customers(X, y, train_proba, test_proba, threshold):
     comparable in aggregate while differing slightly in provenance. The `split`
     column records which path produced each row; filter on it before using this
     file to measure anything.
+
+    EXPORT_ATTRIBUTES are copied across from the source table so the file stands
+    alone as the dashboard's single input.
     """
     proba = pd.concat([train_proba, test_proba]).sort_index()
 
     split = pd.Series("train", index=X.index)
     split.loc[test_proba.index] = "test"
 
-    return pd.DataFrame({
+    scored = pd.DataFrame({
+        "customerID": source["customerID"],
         "churn_probability": proba.round(6),
         "predicted_churn": (proba >= threshold).astype(int),
         "actual_churn": y,
         "split": split,
     })
+    return scored.join(source[EXPORT_ATTRIBUTES])
 
 
 def main():
@@ -191,8 +204,7 @@ def main():
     print_confusion(y_test, proba, chosen)
 
     scored = score_all_customers(
-        X, y, train_proba, pd.Series(proba, index=test_idx), chosen)
-    scored.insert(0, "customerID", df["customerID"])
+        df, X, y, train_proba, pd.Series(proba, index=test_idx), chosen)
 
     SCORED_PATH.parent.mkdir(parents=True, exist_ok=True)
     scored.to_csv(SCORED_PATH, index=False)
@@ -205,6 +217,8 @@ def main():
           f"{recall_score(scored.actual_churn, scored.predicted_churn):.4f}")
     print(f"  overall precision     "
           f"{precision_score(scored.actual_churn, scored.predicted_churn):.4f}")
+    print(f"  columns               {len(scored.columns)}: "
+          f"{', '.join(scored.columns)}")
     print(f"  saved                 {SCORED_PATH.relative_to(ROOT)} "
           f"({SCORED_PATH.stat().st_size / 1024:,.1f} KB)")
     print()

@@ -3,6 +3,9 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+# Derived, small and non-sensitive -- committed because the deployed
+# Streamlit dashboard can only read files that are in the repository.
+!data/processed/scored_customers.csv
 
 # DuckDB database files (rebuilt by src/run_sql.py)
 data/*.duckdb
