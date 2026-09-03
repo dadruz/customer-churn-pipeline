@@ -1,0 +1,33 @@
+# Full local development environment: everything needed to build the artifacts
+# the dashboard reads -- ingestion, feature engineering, model training and
+# evaluation, the EDA notebook, and Airflow orchestration.
+#
+#   pip install -r requirements-dev.txt
+#
+# This includes the dashboard's own dependencies via the -r line below, so it is
+# the only file you need locally. The root requirements.txt stays minimal
+# because Streamlit Cloud installs it on every deploy.
+
+-r requirements.txt
+
+# Ingestion and modelling
+duckdb
+scikit-learn
+xgboost
+joblib
+
+# Exploratory analysis
+jupyter
+
+# Orchestration.
+#
+# Pinned, and it still wants its constraints file. Resolving Airflow freely
+# picks the newest cryptography and libcst, which ship source-only on some
+# platforms and fail to build without a Rust toolchain. Install it as:
+#
+#   pip install "apache-airflow==2.10.5" \
+#     --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.10.5/constraints-3.11.txt"
+#
+# See airflow/README.md. Airflow also pins its dependency tree tightly enough to
+# fight with pandas and scikit-learn, so prefer a separate virtualenv for it.
+apache-airflow==2.10.5

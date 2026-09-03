@@ -1,9 +1,13 @@
-pandas
-duckdb
-scikit-learn
-xgboost
+# Runtime dependencies for the Streamlit dashboard (dashboards/app.py).
+#
+# Deliberately minimal: this is the file Streamlit Cloud installs. The deployed
+# app only reads data/processed/scored_customers.csv and
+# models/model_comparison.md, both committed to the repository. It never
+# ingests, trains, queries DuckDB, or orchestrates -- so none of that belongs
+# here, where every extra package is build time and a chance of breakage.
+#
+# Everything needed to *produce* those artifacts is in requirements-dev.txt.
+
 streamlit
-apache-airflow
-jupyter
+pandas
 matplotlib
-joblib

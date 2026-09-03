@@ -1,0 +1,13 @@
+# Dashboard theme. The primary colour matches the blue used by the charts in
+# dashboards/app.py, so widgets and plots read as one palette.
+
+[theme]
+base = "light"
+primaryColor = "#2a78d6"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f4f4f2"
+textColor = "#0b0b0b"
+font = "sans serif"
+
+[browser]
+gatherUsageStats = false
